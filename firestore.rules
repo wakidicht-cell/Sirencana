@@ -1,0 +1,251 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net: default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidBidang(val) {
+      return val in ['PEMERINTAHAN', 'PEMBANGUNAN', 'PEMBINAAN', 'PEMBERDAYAAN', 'BENCANA'];
+    }
+
+    function isValidSumberDana(val) {
+      return val in ['DD', 'ADD', 'PAD', 'BK_KAB', 'BK_PROV', 'BHP', 'LAINNYA'];
+    }
+
+    function isValidVillageProfile(data) {
+      return data.desaName is string && data.desaName.size() >= 1 && data.desaName.size() <= 120 &&
+             data.kecamatan is string && data.kecamatan.size() <= 120 &&
+             data.kabupaten is string && data.kabupaten.size() <= 120 &&
+             data.provinsi is string && data.provinsi.size() <= 120 &&
+             data.kepalaDesa is string && data.kepalaDesa.size() <= 120 &&
+             data.sekretarisDesa is string && data.sekretarisDesa.size() <= 120 &&
+             data.periodeStartYear is int && data.periodeStartYear >= 2000 && data.periodeStartYear <= 2100 &&
+             data.periodeEndYear is int && data.periodeEndYear >= data.periodeStartYear && data.periodeEndYear <= 2110 &&
+             data.activeFiscalYear is int && data.activeFiscalYear >= 2000 && data.activeFiscalYear <= 2110 &&
+             data.visi is string && data.visi.size() <= 1500 &&
+             data.misi is string && data.misi.size() <= 3000 &&
+             data.tujuan is string && data.tujuan.size() <= 3000;
+    }
+
+    function isValidRpjmdesProgram(data) {
+      return isValidBidang(data.bidang) &&
+             data.subBidang is string && data.subBidang.size() <= 160 &&
+             data.programName is string && data.programName.size() >= 1 && data.programName.size() <= 200 &&
+             data.activityName is string && data.activityName.size() >= 1 && data.activityName.size() <= 250 &&
+             data.indikatorKinerja is string && data.indikatorKinerja.size() <= 300 &&
+             data.target is string && data.target.size() <= 160 &&
+             data.lokasi is string && data.lokasi.size() <= 160 &&
+             data.tahunKe is int && data.tahunKe >= 1 && data.tahunKe <= 8 &&
+             data.paguIndikatif is int && data.paguIndikatif >= 0 &&
+             isValidSumberDana(data.sumberDana);
+    }
+
+    function isValidRkpdesActivity(data) {
+      return data.fiscalYear is int && data.fiscalYear >= 2000 && data.fiscalYear <= 2110 &&
+             data.rpjmdesProgramId is string && data.rpjmdesProgramId.size() <= 128 &&
+             isValidBidang(data.bidang) &&
+             data.activityName is string && data.activityName.size() >= 1 && data.activityName.size() <= 250 &&
+             data.indikator is string && data.indikator.size() <= 300 &&
+             data.target is string && data.target.size() <= 160 &&
+             data.lokasi is string && data.lokasi.size() <= 160 &&
+             data.pelaksana is string && data.pelaksana.size() <= 160 &&
+             data.waktuPelaksanaan is string && data.waktuPelaksanaan.size() <= 120 &&
+             data.paguAnggaran is int && data.paguAnggaran >= 0 &&
+             isValidSumberDana(data.sumberDana) &&
+             data.status in ['DRAFT', 'MUSRENBANG', 'DITETAPKAN'];
+    }
+
+    function isValidRkpdesMeta(data) {
+      return data.fiscalYear is int && data.fiscalYear >= 2000 && data.fiscalYear <= 2110 &&
+             data.nomorSkTim is string && data.nomorSkTim.size() <= 120 &&
+             data.ketuaTim is string && data.ketuaTim.size() <= 120 &&
+             data.sekretarisTim is string && data.sekretarisTim.size() <= 120 &&
+             data.anggotaTim is string && data.anggotaTim.size() <= 2000 &&
+             data.nomorBaMusrenbang is string && data.nomorBaMusrenbang.size() <= 120 &&
+             data.tanggalMusrenbang is string && data.tanggalMusrenbang.size() <= 80 &&
+             data.tempatMusrenbang is string && data.tempatMusrenbang.size() <= 160 &&
+             data.pimpinanRapat is string && data.pimpinanRapat.size() <= 120 &&
+             data.jumlahPeserta is int && data.jumlahPeserta >= 0 && data.jumlahPeserta <= 10000 &&
+             data.ringkasanKesepakatan is string && data.ringkasanKesepakatan.size() <= 3000;
+    }
+
+    function isValidRabItem(data) {
+      return data.fiscalYear is int && data.fiscalYear >= 2000 && data.fiscalYear <= 2110 &&
+             data.rkpdesActivityId is string && data.rkpdesActivityId.size() >= 1 && data.rkpdesActivityId.size() <= 128 &&
+             data.rkpdesActivityName is string && data.rkpdesActivityName.size() <= 250 &&
+             data.sshItemId is string && data.sshItemId.size() <= 128 &&
+             data.uraian is string && data.uraian.size() >= 1 && data.uraian.size() <= 250 &&
+             data.spesifikasi is string && data.spesifikasi.size() <= 250 &&
+             (data.volume is int || data.volume is float) && data.volume > 0 &&
+             data.satuan is string && data.satuan.size() >= 1 && data.satuan.size() <= 50 &&
+             data.hargaSatuan is int && data.hargaSatuan >= 0 &&
+             data.sshMaxPrice is int && data.sshMaxPrice >= 0 &&
+             data.jumlahTotal is int && data.jumlahTotal >= 0;
+    }
+
+    function isValidSshItem(data) {
+      return data.kodeItem is string && data.kodeItem.size() >= 1 && data.kodeItem.size() <= 60 &&
+             data.kategori in ['BARANG', 'JASA', 'HONORARIUM'] &&
+             data.namaItem is string && data.namaItem.size() >= 1 && data.namaItem.size() <= 200 &&
+             data.spesifikasi is string && data.spesifikasi.size() <= 250 &&
+             data.satuan is string && data.satuan.size() >= 1 && data.satuan.size() <= 50 &&
+             data.hargaSatuan is int && data.hargaSatuan >= 0 &&
+             data.tahunBerlaku is int && data.tahunBerlaku >= 2000 && data.tahunBerlaku <= 2110;
+    }
+
+    function isValidVillageRevenue(data) {
+      return data.fiscalYear is int && data.fiscalYear >= 2000 && data.fiscalYear <= 2110 &&
+             isValidSumberDana(data.sumber) &&
+             data.kodeRekening is string && data.kodeRekening.size() >= 1 && data.kodeRekening.size() <= 40 &&
+             data.subKategori is string && data.subKategori.size() <= 160 &&
+             data.uraian is string && data.uraian.size() >= 1 && data.uraian.size() <= 250 &&
+             data.nomorDokumen is string && data.nomorDokumen.size() <= 120 &&
+             data.paguAnggaran is int && data.paguAnggaran >= 0 &&
+             data.realisasi is int && data.realisasi >= 0 &&
+             data.keterangan is string && data.keterangan.size() <= 500;
+    }
+
+    match /users/{userId} {
+      match /village_profiles/{profileId} {
+        allow get: if isOwner(userId) && isValidId(profileId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(profileId) &&
+                         incoming().keys().hasAll(['desaName', 'kecamatan', 'kabupaten', 'provinsi', 'kepalaDesa', 'sekretarisDesa', 'periodeStartYear', 'periodeEndYear', 'activeFiscalYear', 'visi', 'misi', 'tujuan', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['desaName', 'kecamatan', 'kabupaten', 'provinsi', 'kepalaDesa', 'sekretarisDesa', 'periodeStartYear', 'periodeEndYear', 'activeFiscalYear', 'visi', 'misi', 'tujuan', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidVillageProfile(incoming());
+        allow update: if isOwner(userId) && isValidId(profileId) &&
+                         isValidVillageProfile(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['desaName', 'kecamatan', 'kabupaten', 'provinsi', 'kepalaDesa', 'sekretarisDesa', 'periodeStartYear', 'periodeEndYear', 'activeFiscalYear', 'visi', 'misi', 'tujuan', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(profileId);
+      }
+
+      match /rpjmdes_programs/{programId} {
+        allow get: if isOwner(userId) && isValidId(programId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(programId) &&
+                         incoming().keys().hasAll(['bidang', 'subBidang', 'programName', 'activityName', 'indikatorKinerja', 'target', 'lokasi', 'tahunKe', 'paguIndikatif', 'sumberDana', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['bidang', 'subBidang', 'programName', 'activityName', 'indikatorKinerja', 'target', 'lokasi', 'tahunKe', 'paguIndikatif', 'sumberDana', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidRpjmdesProgram(incoming());
+        allow update: if isOwner(userId) && isValidId(programId) &&
+                         isValidRpjmdesProgram(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['bidang', 'subBidang', 'programName', 'activityName', 'indikatorKinerja', 'target', 'lokasi', 'tahunKe', 'paguIndikatif', 'sumberDana', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(programId);
+      }
+
+      match /rkpdes_activities/{activityId} {
+        allow get: if isOwner(userId) && isValidId(activityId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(activityId) &&
+                         incoming().keys().hasAll(['fiscalYear', 'rpjmdesProgramId', 'bidang', 'activityName', 'indikator', 'target', 'lokasi', 'pelaksana', 'waktuPelaksanaan', 'paguAnggaran', 'sumberDana', 'status', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['fiscalYear', 'rpjmdesProgramId', 'bidang', 'activityName', 'indikator', 'target', 'lokasi', 'pelaksana', 'waktuPelaksanaan', 'paguAnggaran', 'sumberDana', 'status', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidRkpdesActivity(incoming());
+        allow update: if isOwner(userId) && isValidId(activityId) &&
+                         isValidRkpdesActivity(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['fiscalYear', 'rpjmdesProgramId', 'bidang', 'activityName', 'indikator', 'target', 'lokasi', 'pelaksana', 'waktuPelaksanaan', 'paguAnggaran', 'sumberDana', 'status', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(activityId);
+      }
+
+      match /rkpdes_meta/{yearKey} {
+        allow get: if isOwner(userId) && isValidId(yearKey);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(yearKey) &&
+                         incoming().keys().hasAll(['fiscalYear', 'nomorSkTim', 'ketuaTim', 'sekretarisTim', 'anggotaTim', 'nomorBaMusrenbang', 'tanggalMusrenbang', 'tempatMusrenbang', 'pimpinanRapat', 'jumlahPeserta', 'ringkasanKesepakatan', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['fiscalYear', 'nomorSkTim', 'ketuaTim', 'sekretarisTim', 'anggotaTim', 'nomorBaMusrenbang', 'tanggalMusrenbang', 'tempatMusrenbang', 'pimpinanRapat', 'jumlahPeserta', 'ringkasanKesepakatan', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidRkpdesMeta(incoming());
+        allow update: if isOwner(userId) && isValidId(yearKey) &&
+                         isValidRkpdesMeta(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['fiscalYear', 'nomorSkTim', 'ketuaTim', 'sekretarisTim', 'anggotaTim', 'nomorBaMusrenbang', 'tanggalMusrenbang', 'tempatMusrenbang', 'pimpinanRapat', 'jumlahPeserta', 'ringkasanKesepakatan', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(yearKey);
+      }
+
+      match /rab_items/{rabId} {
+        allow get: if isOwner(userId) && isValidId(rabId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(rabId) &&
+                         incoming().keys().hasAll(['fiscalYear', 'rkpdesActivityId', 'rkpdesActivityName', 'sshItemId', 'uraian', 'spesifikasi', 'volume', 'satuan', 'hargaSatuan', 'sshMaxPrice', 'jumlahTotal', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['fiscalYear', 'rkpdesActivityId', 'rkpdesActivityName', 'sshItemId', 'uraian', 'spesifikasi', 'volume', 'satuan', 'hargaSatuan', 'sshMaxPrice', 'jumlahTotal', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidRabItem(incoming());
+        allow update: if isOwner(userId) && isValidId(rabId) &&
+                         isValidRabItem(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['fiscalYear', 'rkpdesActivityId', 'rkpdesActivityName', 'sshItemId', 'uraian', 'spesifikasi', 'volume', 'satuan', 'hargaSatuan', 'sshMaxPrice', 'jumlahTotal', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(rabId);
+      }
+
+      match /ssh_items/{sshId} {
+        allow get: if isOwner(userId) && isValidId(sshId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(sshId) &&
+                         incoming().keys().hasAll(['kodeItem', 'kategori', 'namaItem', 'spesifikasi', 'satuan', 'hargaSatuan', 'tahunBerlaku', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['kodeItem', 'kategori', 'namaItem', 'spesifikasi', 'satuan', 'hargaSatuan', 'tahunBerlaku', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidSshItem(incoming());
+        allow update: if isOwner(userId) && isValidId(sshId) &&
+                         isValidSshItem(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['kodeItem', 'kategori', 'namaItem', 'spesifikasi', 'satuan', 'hargaSatuan', 'tahunBerlaku', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(sshId);
+      }
+
+      match /revenues/{revenueId} {
+        allow get: if isOwner(userId) && isValidId(revenueId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(revenueId) &&
+                         incoming().keys().hasAll(['fiscalYear', 'sumber', 'kodeRekening', 'subKategori', 'uraian', 'nomorDokumen', 'paguAnggaran', 'realisasi', 'keterangan', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['fiscalYear', 'sumber', 'kodeRekening', 'subKategori', 'uraian', 'nomorDokumen', 'paguAnggaran', 'realisasi', 'keterangan', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidVillageRevenue(incoming());
+        allow update: if isOwner(userId) && isValidId(revenueId) &&
+                         isValidVillageRevenue(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['fiscalYear', 'sumber', 'kodeRekening', 'subKategori', 'uraian', 'nomorDokumen', 'paguAnggaran', 'realisasi', 'keterangan', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(revenueId);
+      }
+    }
+  }
+}

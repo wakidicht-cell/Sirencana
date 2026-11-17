@@ -1,0 +1,176 @@
+{
+  "entities": {
+    "VillageProfile": {
+      "title": "VillageProfile",
+      "description": "Profil desa, periode RPJMDes 8 tahun, tahun anggaran aktif, visi, misi, dan tujuan kepala desa.",
+      "type": "object",
+      "properties": {
+        "desaName": { "type": "string", "description": "Nama desa" },
+        "kecamatan": { "type": "string", "description": "Nama kecamatan" },
+        "kabupaten": { "type": "string", "description": "Nama kabupaten/kota" },
+        "provinsi": { "type": "string", "description": "Nama provinsi" },
+        "kepalaDesa": { "type": "string", "description": "Nama Kepala Desa" },
+        "sekretarisDesa": { "type": "string", "description": "Nama Sekretaris Desa" },
+        "periodeStartYear": { "type": "integer", "description": "Tahun awal masa jabatan 8 tahun" },
+        "periodeEndYear": { "type": "integer", "description": "Tahun akhir masa jabatan (periodeStartYear + 7)" },
+        "activeFiscalYear": { "type": "integer", "description": "Tahun anggaran aktif RKPDes & Pendapatan" },
+        "visi": { "type": "string", "description": "Visi Kepala Desa" },
+        "misi": { "type": "string", "description": "Misi Kepala Desa" },
+        "tujuan": { "type": "string", "description": "Tujuan pembangunan desa" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp" }
+      },
+      "required": ["desaName", "kecamatan", "kabupaten", "provinsi", "kepalaDesa", "sekretarisDesa", "periodeStartYear", "periodeEndYear", "activeFiscalYear", "visi", "misi", "tujuan", "createdAt", "updatedAt"]
+    },
+    "RpjmdesProgram": {
+      "title": "RpjmdesProgram",
+      "description": "Program dan kegiatan RPJMDes periode 8 tahun.",
+      "type": "object",
+      "properties": {
+        "bidang": { "type": "string", "enum": ["PEMERINTAHAN", "PEMBANGUNAN", "PEMBINAAN", "PEMBERDAYAAN", "BENCANA"] },
+        "subBidang": { "type": "string" },
+        "programName": { "type": "string" },
+        "activityName": { "type": "string" },
+        "indikatorKinerja": { "type": "string" },
+        "target": { "type": "string" },
+        "lokasi": { "type": "string" },
+        "tahunKe": { "type": "integer", "description": "Tahun pelaksanaan ke-1 sampai ke-8" },
+        "paguIndikatif": { "type": "integer", "description": "Pagu indikatif dalam Rupiah" },
+        "sumberDana": { "type": "string", "enum": ["DD", "ADD", "PAD", "BK_KAB", "BK_PROV", "BHP", "LAINNYA"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["bidang", "subBidang", "programName", "activityName", "indikatorKinerja", "target", "lokasi", "tahunKe", "paguIndikatif", "sumberDana", "createdAt", "updatedAt"]
+    },
+    "RkpdesActivity": {
+      "title": "RkpdesActivity",
+      "description": "Kegiatan tahunan RKPDes yang ditarik dari RPJMDes atau usulan Musrenbangdes.",
+      "type": "object",
+      "properties": {
+        "fiscalYear": { "type": "integer" },
+        "rpjmdesProgramId": { "type": "string" },
+        "bidang": { "type": "string", "enum": ["PEMERINTAHAN", "PEMBANGUNAN", "PEMBINAAN", "PEMBERDAYAAN", "BENCANA"] },
+        "activityName": { "type": "string" },
+        "indikator": { "type": "string" },
+        "target": { "type": "string" },
+        "lokasi": { "type": "string" },
+        "pelaksana": { "type": "string" },
+        "waktuPelaksanaan": { "type": "string" },
+        "paguAnggaran": { "type": "integer" },
+        "sumberDana": { "type": "string", "enum": ["DD", "ADD", "PAD", "BK_KAB", "BK_PROV", "BHP", "LAINNYA"] },
+        "status": { "type": "string", "enum": ["DRAFT", "MUSRENBANG", "DITETAPKAN"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fiscalYear", "rpjmdesProgramId", "bidang", "activityName", "indikator", "target", "lokasi", "pelaksana", "waktuPelaksanaan", "paguAnggaran", "sumberDana", "status", "createdAt", "updatedAt"]
+    },
+    "RkpdesMeta": {
+      "title": "RkpdesMeta",
+      "description": "Penetapan Tim Penyusun RKPDes dan Berita Acara Musrenbangdes per tahun anggaran.",
+      "type": "object",
+      "properties": {
+        "fiscalYear": { "type": "integer" },
+        "nomorSkTim": { "type": "string" },
+        "ketuaTim": { "type": "string" },
+        "sekretarisTim": { "type": "string" },
+        "anggotaTim": { "type": "string" },
+        "nomorBaMusrenbang": { "type": "string" },
+        "tanggalMusrenbang": { "type": "string" },
+        "tempatMusrenbang": { "type": "string" },
+        "pimpinanRapat": { "type": "string" },
+        "jumlahPeserta": { "type": "integer" },
+        "ringkasanKesepakatan": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fiscalYear", "nomorSkTim", "ketuaTim", "sekretarisTim", "anggotaTim", "nomorBaMusrenbang", "tanggalMusrenbang", "tempatMusrenbang", "pimpinanRapat", "jumlahPeserta", "ringkasanKesepakatan", "createdAt", "updatedAt"]
+    },
+    "RabItem": {
+      "title": "RabItem",
+      "description": "Rincian Rencana Anggaran Biaya kegiatan RKPDes dengan acuan SSH/SBB.",
+      "type": "object",
+      "properties": {
+        "fiscalYear": { "type": "integer" },
+        "rkpdesActivityId": { "type": "string" },
+        "rkpdesActivityName": { "type": "string" },
+        "sshItemId": { "type": "string" },
+        "uraian": { "type": "string" },
+        "spesifikasi": { "type": "string" },
+        "volume": { "type": "number" },
+        "satuan": { "type": "string" },
+        "hargaSatuan": { "type": "integer" },
+        "sshMaxPrice": { "type": "integer" },
+        "jumlahTotal": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fiscalYear", "rkpdesActivityId", "rkpdesActivityName", "sshItemId", "uraian", "spesifikasi", "volume", "satuan", "hargaSatuan", "sshMaxPrice", "jumlahTotal", "createdAt", "updatedAt"]
+    },
+    "SshItem": {
+      "title": "SshItem",
+      "description": "Standar Satuan Harga / Satuan Biaya Belanja (SBB/SSH) Desa.",
+      "type": "object",
+      "properties": {
+        "kodeItem": { "type": "string" },
+        "kategori": { "type": "string", "enum": ["BARANG", "JASA", "HONORARIUM"] },
+        "namaItem": { "type": "string" },
+        "spesifikasi": { "type": "string" },
+        "satuan": { "type": "string" },
+        "hargaSatuan": { "type": "integer" },
+        "tahunBerlaku": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["kodeItem", "kategori", "namaItem", "spesifikasi", "satuan", "hargaSatuan", "tahunBerlaku", "createdAt", "updatedAt"]
+    },
+    "VillageRevenue": {
+      "title": "VillageRevenue",
+      "description": "Data sumber pendapatan desa lengkap (ADD, DD, PAD, BK Kab, BK Prov, BHP & Retribusi, Lain-lain).",
+      "type": "object",
+      "properties": {
+        "fiscalYear": { "type": "integer" },
+        "sumber": { "type": "string", "enum": ["ADD", "DD", "PAD", "BK_KAB", "BK_PROV", "BHP", "LAINNYA"] },
+        "kodeRekening": { "type": "string" },
+        "subKategori": { "type": "string" },
+        "uraian": { "type": "string" },
+        "nomorDokumen": { "type": "string" },
+        "paguAnggaran": { "type": "integer" },
+        "realisasi": { "type": "integer" },
+        "keterangan": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fiscalYear", "sumber", "kodeRekening", "subKategori", "uraian", "nomorDokumen", "paguAnggaran", "realisasi", "keterangan", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/village_profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/VillageProfile" },
+      "description": "Profil desa dan visi misi kepala desa."
+    },
+    "/users/{userId}/rpjmdes_programs/{programId}": {
+      "schema": { "$ref": "#/entities/RpjmdesProgram" },
+      "description": "Program & kegiatan RPJMDes 8 tahun milik pengguna."
+    },
+    "/users/{userId}/rkpdes_activities/{activityId}": {
+      "schema": { "$ref": "#/entities/RkpdesActivity" },
+      "description": "Daftar kegiatan tahunan RKPDes milik pengguna."
+    },
+    "/users/{userId}/rkpdes_meta/{yearKey}": {
+      "schema": { "$ref": "#/entities/RkpdesMeta" },
+      "description": "Tim Penyusun & Berita Acara Musrenbangdes per tahun anggaran."
+    },
+    "/users/{userId}/rab_items/{rabId}": {
+      "schema": { "$ref": "#/entities/RabItem" },
+      "description": "Rincian RAB kegiatan RKPDes tervalidasi SSH."
+    },
+    "/users/{userId}/ssh_items/{sshId}": {
+      "schema": { "$ref": "#/entities/SshItem" },
+      "description": "Referensi Standar Satuan Harga (SSH/SBB) desa."
+    },
+    "/users/{userId}/revenues/{revenueId}": {
+      "schema": { "$ref": "#/entities/VillageRevenue" },
+      "description": "Rekapitulasi 7 sumber pendapatan desa."
+    }
+  }
+}

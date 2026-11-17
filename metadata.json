@@ -1,0 +1,6 @@
+{
+  "name": "SiRencana Desa",
+  "description": "Aplikasi Perencanaan & Penganggaran Desa (RPJMDes 8 Tahun, RKPDes, Standar Harga SBB/SSH, Pendapatan Desa, dan Cetak Laporan Kertas F4).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
