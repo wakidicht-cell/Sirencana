@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "441448346156",
+    "project_id": "sirencana-desa",
+    "storage_bucket": "sirencana-desa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441448346156:android:fa4099730b691a0f385789",
+        "android_client_info": {
+          "package_name": "com.aistudio.sirencanadesa.kmpqzx"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAToWIlvIW2b9Fg-kRhtjjECO2oGVzI2_A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
